@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
@@ -21,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.blankj.utilcode.util.NetworkUtils
 import com.github.bkhezry.earthquake.R
 import com.github.bkhezry.earthquake.listener.CardClickListener
 import com.github.bkhezry.earthquake.model.EarthquakeResponse
@@ -124,7 +122,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     ButterKnife.bind(this)
-    setSupportActionBar(bar)
     setUpBottomSheet()
     setupBottomDrawer()
     initVariables()
@@ -231,6 +228,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
       bottomSheetAboutBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
     bar.setNavigationIcon(R.drawable.ic_menu_black_24dp)
+    bar.replaceMenu(R.menu.appbar_menu)
+    bar.setOnMenuItemClickListener { item ->
+      when (item.itemId) {
+        R.id.refresh -> {
+          getEarthquake()
+          true
+        }
+        else -> false
+      }
+    }
   }
 
   /**
@@ -287,7 +294,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
   /**
    * Handle google map event listener
    *
-   * @param googleMap GoogleMap
+   * @param googleMap [GoogleMap]
    */
   override fun onMapReady(googleMap: GoogleMap) {
     mMap = googleMap
@@ -432,7 +439,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
    * Handle cluster click event
    * bound box google map to the items of cluster
    *
-   * @param cluster Cluster<Feature> instance of Cluster
+   * @param cluster Cluster<Feature> instance of [Cluster]
    * @return Boolean
    */
   private fun handleClusterClick(cluster: Cluster<Feature>): Boolean {
@@ -462,6 +469,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
    * Get earthquakes data from server
    */
   private fun getEarthquake() {
+    if (NetworkUtils.isConnected()) {
+      requestEarthquakes()
+    } else {
+      Toast.makeText(this, getString(R.string.no_internet_message), Toast.LENGTH_LONG).show()
+    }
+  }
+
+  private fun requestEarthquakes() {
     progressBar.visibility = View.VISIBLE
     val endpoint = Constants.END_POINTS[
         sharedPreferencesUtil.timeSelected.toString().plus(
@@ -472,7 +487,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::handleResponse, this::handleError)
     disposable.add(subscribe)
-
   }
 
   /**
@@ -482,7 +496,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
    * add items of feature to cluster manager
    * bound box map for showing data on the google map
    *
-   * @param earthquakeResponse EarthquakeResponse
+   * @param earthquakeResponse the instance of [EarthquakeResponse]
    */
   private fun handleResponse(earthquakeResponse: EarthquakeResponse) {
     recordCountTextView.text = "#".plus(earthquakeResponse.metadata.count.toString())
@@ -602,7 +616,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
   }
 
   /**
-   * Store selected filters in the SharedPreferencesUtil
+   * Store selected filters in the [SharedPreferencesUtil]
    *
    * @param timeChipSelected Int selected time filter
    * @param scaleChipSelected Int selected scale filter
