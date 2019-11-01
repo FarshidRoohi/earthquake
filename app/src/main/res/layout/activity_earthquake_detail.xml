@@ -5,22 +5,24 @@
     android:id="@+id/draggable_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     app:dragDismissDistance="@dimen/drag_dismiss_distance"
     app:dragDismissScale="0.95">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorPrimary">
+        android:background="@android:color/transparent">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
             android:layout_margin="@dimen/spacing_middle"
             android:transitionName="card_view"
             app:cardBackgroundColor="?attr/colorPrimaryDark"
-            app:cardCornerRadius="6dp"
+            app:cardCornerRadius="10dp"
             app:cardElevation="6dp">
 
             <LinearLayout
@@ -293,6 +295,8 @@
                 </LinearLayout>
 
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
+
     </androidx.core.widget.NestedScrollView>
 </com.github.bkhezry.earthquake.util.ElasticDragDismissFrameLayout>
